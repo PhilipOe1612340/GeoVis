@@ -1,0 +1,29 @@
+<div id="settings-panel">
+  <form id="location-form" [formGroup]="this.locationForm" (ngSubmit)="onSubmit(this.locationForm.value)">
+    <mat-form-field>
+      <mat-label>Latitude</mat-label>
+      <input matInput type="number" placeholder="Latitude" min="-90" max="90" step="0.001" formControlName="latitude" />
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Longitude</mat-label>
+      <input matInput type="number" placeholder="Longitude" min="-90" max="90" step="0.001" formControlName="longitude" />
+    </mat-form-field>
+    <button type="submit" mat-stroked-button>Add Marker</button>
+  </form>
+
+  <div class="pubs">
+    <form id="pubs-form">
+      <mat-form-field>
+        <mat-label>Show location type</mat-label>
+        <input #type type="text" placeholder="Type" matInput formControlName="amenityType" [formControl]="autoComplete" [matAutocomplete]="auto">
+        <mat-autocomplete #auto="matAutocomplete">
+          <mat-option *ngFor="let option of filteredAmenities | async" [value]="option">
+            {{option}}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+      <button (click)="addType(type)" mat-stroked-button>Show</button>
+    </form>
+    <button (click)="addPubs()" mat-stroked-button>Add Pubs</button>
+  </div>
+</div>
