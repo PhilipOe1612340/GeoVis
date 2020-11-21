@@ -1,6 +1,5 @@
-import { Component, ViewChild } from '@angular/core';
-import { MapComponent } from './map/map.component';
-import { DataService } from './services/data.service';
+import { Component } from '@angular/core';
+
 
 @Component({
   selector: 'app-root',

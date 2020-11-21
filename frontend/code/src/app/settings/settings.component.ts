@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { DataService } from '../services/data.service';
+import { DataService, GeoObj } from '../services/data.service';
 import { map, startWith, tap } from 'rxjs/operators';
 
 @Component({
@@ -53,7 +53,8 @@ export class SettingsComponent implements OnInit {
    * @param marker Latitude and longitude of the marker
    */
   onSubmit(marker: { latitude: number; longitude: number }): void {
-    this.dataService.amenities.next([{ name: 'My Marker', ...marker }]);
+    const geo: GeoObj = { coordinates: [marker.latitude, marker.longitude], type: 'Point', properties: { name: 'myPoint' } } as any;
+    this.dataService.amenities.next([geo]);
   }
 
   addPubs(): void {

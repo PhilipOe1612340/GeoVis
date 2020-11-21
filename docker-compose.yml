@@ -4,7 +4,7 @@ services:
   database:
     build: ./database
     volumes:
-      - database-data:/var/lib/postgresql/data
+      - ./postgres-data:/var/lib/postgresql/data
     ports:
       - "25432:5432"
 

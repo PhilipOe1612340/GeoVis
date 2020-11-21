@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import * as L from 'leaflet';
-import { DataService } from '../services/data.service';
+import { DataService, GeoObj } from '../services/data.service';
+import { Geometry } from 'geojson';
 
 @Component({
   selector: 'app-map',
@@ -12,16 +13,16 @@ export class MapComponent implements OnInit {
   private amenitiesLayer: L.LayerGroup<any> = L.layerGroup();
 
   // tslint:disable-next-line: variable-name
-  private _amenities: { name: string; latitude: number; longitude: number; }[] = [];
+  private _amenities: GeoObj[] = [];
 
-  constructor(private dataService: DataService) {
+  constructor(dataService: DataService) {
     dataService.amenities.subscribe(value => {
       this._amenities = value;
       this.updateAmenitiesLayer();
     });
   }
 
-  get amenities(): { name: string; latitude: number; longitude: number }[] {
+  get amenities(): GeoObj[] {
     return this._amenities;
   }
 
@@ -34,8 +35,8 @@ export class MapComponent implements OnInit {
     this.map.removeLayer(this.amenitiesLayer);
 
     // create a marker for each supplied amenity
-    const markers = this.amenities.map((a) =>
-      L.marker([a.latitude, a.longitude]).bindPopup(a.name)
+    const markers = this.amenities.map((a: GeoObj) =>
+      L.geoJSON(a).bindPopup(a.properties.name)
     );
 
     // create a new layer group and add it to the map
