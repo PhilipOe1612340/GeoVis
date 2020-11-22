@@ -2,14 +2,17 @@ import { Component, OnInit } from '@angular/core';
 import * as L from 'leaflet';
 import { DataService, GeoObj, Properties } from '../services/data.service';
 import { environment } from 'src/environments/environment';
+import { GermanyJson } from './germay';
 
 
 class Icon extends L.Icon<L.IconOptions>{
-  iconSize = [30, 30]
-  popupAnchor = [-10, -30]
-
-  constructor(tag: string) {
-    super({ iconUrl: environment.server + '/glyphs/' + tag, className: "zoom-icon" });
+  constructor(prop: Properties) {
+    super({
+      iconUrl: environment.server + '/glyphs/' + prop.icon,
+      // iconSize: [150, 150],
+      // iconAnchor: [75, 75],
+      className: prop.countryClass || "zoom-icon",
+    });
   }
 }
 
@@ -21,6 +24,7 @@ class Icon extends L.Icon<L.IconOptions>{
 export class MapComponent implements OnInit {
   private map!: L.Map;
   private amenitiesLayer: L.LayerGroup<any> = L.layerGroup();
+  private iconMap: WeakMap<Properties, Icon> = new WeakMap<Properties, Icon>()
 
   // tslint:disable-next-line: variable-name
   private amenities: GeoObj[] = [];
@@ -41,25 +45,30 @@ export class MapComponent implements OnInit {
     this.map.removeLayer(this.amenitiesLayer);
 
     // @ts-ignore
-    this.amenitiesLayer = L.geoJSON({ "type": "FeatureCollection", features: this.amenities }, {
-      pointToLayer: function (_feature, latLng) {
+    // this.amenitiesLayer = L.geoJSON({ "type": "FeatureCollection", features: this.amenities }, {
+    this.amenitiesLayer = L.geoJSON(GermanyJson, {
+      pointToLayer: (_feature, latLng) => {
         return L.marker(latLng);
       },
       onEachFeature: (feature: GeoObj, layer) => {
-
         if (feature.geometry.type === 'Polygon' && feature.properties.icon) {
-          let center: L.LatLngExpression;
-          if (feature.properties.center) {
-            center = feature.properties.center;
-          } else {
+          let center: L.LatLngExpression = feature.properties.center!;
+          if (!center) {
             // @ts-ignore
             const bounds = layer.getBounds(); // Get bounds of polygon
             center = bounds.getCenter(); // Get center of bounds
           }
 
           // Use center to put marker on map
-          const icon = new Icon(feature.properties.icon);
-          L.marker(center, { icon }).setPopupContent(feature.properties.name).addTo(this.map);
+          let icon;
+          if (this.iconMap.has(feature.properties)) {
+            icon = this.iconMap.get(feature.properties);
+          } else {
+            icon = new Icon(feature.properties);
+            this.iconMap.set(feature.properties, icon);
+          }
+
+          L.marker(center, { icon }).addTo(this.map);
         }
       }
     });
@@ -68,7 +77,7 @@ export class MapComponent implements OnInit {
     this.map.addLayer(this.amenitiesLayer);
 
     this.map.on("zoomend", () => {
-      const newZoom = (6 * this.map.getZoom() ** 2) + 'px';
+      const newZoom = (2 * this.map.getZoom() ** 2) + 'px';
       document.documentElement.style.setProperty("--zoom-image-size", newZoom);
     })
   }

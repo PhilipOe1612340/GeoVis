@@ -16,6 +16,6 @@ body {
 }
 
 .zoom-icon {
-    width: var(--zoom-image-size);
-    height: var(--zoom-image-size);
+    width: var(--zoom-image-size) !important;
+    height: var(--zoom-image-size) !important;
 }

@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  server: "/assets/"
+  server: "/assets"
 };
 
 /*
