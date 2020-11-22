@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 from psycopg2 import sql
 import psycopg2
@@ -59,3 +59,12 @@ def addToJSON(jsonObj, propertyList):
         jsonObj[prop] = propertyList[prop]
 
     return jsonObj
+
+@app.route('/')
+def send_index():
+    return send_from_directory('../static/', 'index.html')
+
+@app.route('/<path:path>')
+def send_static(path):
+    print(path)
+    return send_from_directory('../static/', path)

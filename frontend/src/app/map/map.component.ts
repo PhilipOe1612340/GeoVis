@@ -1,7 +1,17 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import * as L from 'leaflet';
-import { DataService, GeoObj } from '../services/data.service';
-import { Geometry } from 'geojson';
+import { DataService, GeoObj, Properties } from '../services/data.service';
+import { environment } from 'src/environments/environment';
+
+
+class Icon extends L.Icon<L.IconOptions>{
+  iconSize = [30, 30]
+  popupAnchor = [-10, -30]
+
+  constructor(tag: string) {
+    super({ iconUrl: environment.server + '/glyphs/' + tag, className: "zoom-icon" });
+  }
+}
 
 @Component({
   selector: 'app-map',
@@ -13,17 +23,13 @@ export class MapComponent implements OnInit {
   private amenitiesLayer: L.LayerGroup<any> = L.layerGroup();
 
   // tslint:disable-next-line: variable-name
-  private _amenities: GeoObj[] = [];
+  private amenities: GeoObj[] = [];
 
   constructor(dataService: DataService) {
     dataService.amenities.subscribe(value => {
-      this._amenities = value;
+      this.amenities = value;
       this.updateAmenitiesLayer();
     });
-  }
-
-  get amenities(): GeoObj[] {
-    return this._amenities;
   }
 
   private updateAmenitiesLayer(): void {
@@ -34,15 +40,37 @@ export class MapComponent implements OnInit {
     // remove old amenities
     this.map.removeLayer(this.amenitiesLayer);
 
-    // create a marker for each supplied amenity
-    const markers = this.amenities.map((a: GeoObj) =>
-      L.geoJSON(a).bindPopup(a.properties.name)
-    );
+    // @ts-ignore
+    this.amenitiesLayer = L.geoJSON({ "type": "FeatureCollection", features: this.amenities }, {
+      pointToLayer: function (_feature, latLng) {
+        return L.marker(latLng);
+      },
+      onEachFeature: (feature: GeoObj, layer) => {
 
-    // create a new layer group and add it to the map
-    this.amenitiesLayer = L.layerGroup(markers);
-    markers.forEach((m) => m.addTo(this.amenitiesLayer));
+        if (feature.geometry.type === 'Polygon' && feature.properties.icon) {
+          let center: L.LatLngExpression;
+          if (feature.properties.center) {
+            center = feature.properties.center;
+          } else {
+            // @ts-ignore
+            const bounds = layer.getBounds(); // Get bounds of polygon
+            center = bounds.getCenter(); // Get center of bounds
+          }
+
+          // Use center to put marker on map
+          const icon = new Icon(feature.properties.icon);
+          L.marker(center, { icon }).setPopupContent(feature.properties.name).addTo(this.map);
+        }
+      }
+    });
+
+    // this.amenitiesLayer.addTo(this.map);
     this.map.addLayer(this.amenitiesLayer);
+
+    this.map.on("zoomend", () => {
+      const newZoom = (6 * this.map.getZoom() ** 2) + 'px';
+      document.documentElement.style.setProperty("--zoom-image-size", newZoom);
+    })
   }
 
   /**
@@ -67,7 +95,7 @@ export class MapComponent implements OnInit {
     L.Marker.prototype.options.icon = iconDefault;
 
     // basic setup, create a map in the div with the id "map"
-    this.map = L.map('map').setView([47.66, 9.175], 13);
+    this.map = L.map('map').setView([47.66, 9.175], 2);
 
     // set a tilelayer, e.g. a world map in the background
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

@@ -15,7 +15,7 @@
     <form id="pubs-form">
       <mat-form-field>
         <mat-label>Show location type</mat-label>
-        <input #type type="text" placeholder="Type" matInput formControlName="amenityType" [formControl]="autoComplete" [matAutocomplete]="auto">
+        <input #type type="text" placeholder="Type" matInput [formControl]="autoComplete" [matAutocomplete]="auto">
         <mat-autocomplete #auto="matAutocomplete">
           <mat-option *ngFor="let option of filteredAmenities | async" [value]="option">
             {{option}}

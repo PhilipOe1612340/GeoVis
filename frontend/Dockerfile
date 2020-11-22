@@ -10,7 +10,7 @@ RUN mkdir -p ${APP_DIR}
 WORKDIR ${APP_DIR}
 
 # copy code
-# COPY ./code/ ${APP_DIR}
+# COPY ./ ${APP_DIR}
 
 # run ng serve
 RUN npm install

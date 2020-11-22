@@ -13,7 +13,7 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./backend/code:/var/opt/gis
+      - ./backend/src:/var/opt/gis
 
   frontend:
     build: ./frontend
@@ -21,7 +21,7 @@ services:
       - "4200:4200"
       - '10000:10000'
     volumes:
-      - ./frontend/code/src:/var/opt/gis/src
+      - ./frontend/src:/var/opt/gis/src
 
 volumes:
   database-data:
