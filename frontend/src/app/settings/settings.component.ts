@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { DataService, GeoObj } from '../services/data.service';
-import { map, startWith, tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-settings',
@@ -11,13 +11,12 @@ import { map, startWith, tap } from 'rxjs/operators';
 })
 export class SettingsComponent implements OnInit {
   // location form stores and validates the inputs from our forms defined in the html document
-  locationForm: FormGroup;
+  public locationForm: FormGroup;
   public allAmenities: string[] = [];
   public autoComplete = new FormControl();
-  filteredAmenities!: Observable<string[]>;
+  public filteredAmenities!: Observable<string[]>;
 
-
-  constructor(private fb: FormBuilder, private dataService: DataService) {
+  constructor(fb: FormBuilder, private dataService: DataService) {
     this.locationForm = fb.group({
       latitude: fb.control(47.66, [
         Validators.required,
@@ -53,19 +52,21 @@ export class SettingsComponent implements OnInit {
    * @param marker Latitude and longitude of the marker
    */
   onSubmit(marker: { latitude: number; longitude: number }): void {
-    const geo: GeoObj = { coordinates: [marker.latitude, marker.longitude], type: 'Point', properties: { name: 'myPoint' } } as any;
+    const geo: GeoObj = {
+      type: 'Point',
+      coordinates: [marker.latitude, marker.longitude],
+      properties: { name: 'myPoint' },
+    } as any;
     this.dataService.amenities.next([geo]);
   }
 
-  addPubs(): void {
-    this.dataService.getPubs().subscribe((pubs) => {
-      this.dataService.amenities.next(pubs);
-    });
+  async addPubs(): Promise<void> {
+    const pubs = await this.dataService.getPubs().toPromise();
+    this.dataService.amenities.next(pubs);
   }
 
-  addType(element: HTMLInputElement): void {
-    this.dataService.getAmenities(element.value).subscribe((pubs) => {
-      this.dataService.amenities.next(pubs);
-    });
+  async addType(element: HTMLInputElement): Promise<void> {
+    const markers = await this.dataService.getAmenities(element.value).toPromise();
+    this.dataService.amenities.next(markers);
   }
 }

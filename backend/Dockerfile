@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y build-essential
 RUN pip3 install --upgrade pip && pip3 install Flask Flask-Cors && pip3 install psycopg2-binary
 
 # environment variables
-ENV FLASK_APP=server.py
+ENV FLASK_APP=src/server.py
 ENV FLASK_DEBUG=1
 
 # run flask server

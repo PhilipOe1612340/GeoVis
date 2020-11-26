@@ -3,7 +3,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Geometry, Feature, Point } from 'geojson';
 import { environment } from 'src/environments/environment';
-import { GermanyJson } from '../map/germay';
 
 export interface Properties {
   name: string;
@@ -27,75 +26,7 @@ export class DataService {
   public readonly amenities: BehaviorSubject<GeoObj[]> = new BehaviorSubject<GeoObj[]>([]);
   private server: string = environment.server;
 
-  constructor(private http: HttpClient) {
-    setInterval(() => {
-
-      this.amenities.next([{
-        "type": "Feature",
-        "properties": { name: "test polygon", icon: "0.jpg" },
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [
-                53.0859375,
-                56.559482483762245
-              ],
-              [
-                18.6328125,
-                49.15296965617042
-              ],
-              [
-                23.5546875,
-                46.31658418182218
-              ],
-              [
-                37.96875,
-                47.27922900257082
-              ],
-              [
-                36.9140625,
-                44.84029065139799
-              ],
-              [
-                41.484375,
-                44.08758502824516
-              ],
-              [
-                42.5390625,
-                40.44694705960048
-              ],
-              [
-                48.515625,
-                39.639537564366684
-              ],
-              [
-                47.4609375,
-                44.33956524809713
-              ],
-              [
-                49.92187499999999,
-                46.31658418182218
-              ],
-              [
-                47.4609375,
-                48.922499263758255
-              ],
-              [
-                50.625,
-                50.958426723359935
-              ],
-              [
-                53.0859375,
-                56.559482483762245
-              ]
-            ]
-          ]
-        }
-      },
-      ])
-    }, 100)
-  }
+  constructor(private http: HttpClient) { }
 
   /**
    * Get Pubs from Backend
