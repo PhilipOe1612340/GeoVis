@@ -2,3 +2,6 @@
 backend/src/__pycache__/
 
 postgres-data/
+backend/code/__pycache__/
+
+frontend/code/node_modules/
